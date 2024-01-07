@@ -29,7 +29,7 @@ namespace ArkeTest.DTO
 
             var password = value.ToString();
 
-            #pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
             if (!Regex.IsMatch(password, @"(?=.*\p{Lu})") ||         // At least one upper case
                 !Regex.IsMatch(password, @"(?=.*\p{Ll})") ||         // At least one lower case
                 !Regex.IsMatch(password, @"(?=.*\d)") ||             // At least one digit
@@ -37,7 +37,7 @@ namespace ArkeTest.DTO
             {
                 return new ValidationResult("Password must be at least 8 characters long and contain at least one upper case letter, one lower case letter, one digit, and one special character.");
             }
-            #pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
 
 
             return ValidationResult.Success;

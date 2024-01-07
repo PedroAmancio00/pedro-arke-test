@@ -1,26 +1,21 @@
 ﻿using ArkeTest.DTO;
 using ArkeTest.DTO.Login;
+using ArkeTest.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
 
 namespace ArkeTest.Services.Login
 {
-    public class CreateLoginService
+    public class CreateLoginService(UserManager<ApplicationUser> userManager, ILogger<CreateLoginService> logger)
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger<CreateLoginService> _logger;
-
-        public CreateLoginService(UserManager<IdentityUser> userManager, ILogger<CreateLoginService> logger)
-        {
-            _userManager = userManager;
-            _logger = logger;
-        }
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly ILogger<CreateLoginService> _logger = logger;
 
         public async Task<ReturnDTO> CreateLogin(CreateLoginDTO dto)
         {
             try
             {
-                IdentityUser login = new()
+                ApplicationUser login = new()
                 {
                     Email = dto.Email,
                     UserName = dto.Email

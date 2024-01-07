@@ -11,6 +11,7 @@ namespace ArkeTest.Data
         {
         }
 
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<UserInformation> UserInformations { get; set; }
         public DbSet<Product> Products { get; set; }
     }

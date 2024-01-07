@@ -3,6 +3,7 @@ using ArkeTest.DTO.Login;
 using ArkeTest.Services.Login;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Net;
 
 namespace ArkeTest.Controllers
 {
@@ -40,9 +41,55 @@ namespace ArkeTest.Controllers
         [SwaggerResponse(500, "Internal Server error")]
         public async Task<IActionResult> AccessAccount([FromBody] AccessAccountDTO accessAccount)
         {
-            ReturnDTO dto = await _accessAccountService.AccessAccount(accessAccount);
+            ReturnJwtDTO dto = await _accessAccountService.AccessAccount(accessAccount);
 
+            if(dto.StatusCode == HttpStatusCode.OK)
+            {
+                var jwtCookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    Expires = DateTime.UtcNow.AddHours(1)
+                };
+               
+                var refreshTokenCookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                };
+                if (dto.JwtToken != null && dto.RefreshToken != null)
+                {
+                    Response.Cookies.Append("jwt", dto.JwtToken, jwtCookieOptions);
+
+                    Response.Cookies.Append("refreshToken", dto.RefreshToken, refreshTokenCookieOptions);
+                }
+            }
             return StatusCode((int)dto.StatusCode, dto.Message);
         }
+        /*
+        [HttpPost("refresh", Name = "Refresh")]
+        [SwaggerOperation(Summary = "Refresh JWT", Description = "Refresh the JWT token")]
+        public async Task<IActionResult> Refresh([FromHeader] string token)
+        {
+            ReturnJwtDTO dto = await _accessAccountService.Refresh(accessAccount);
+
+            if (dto.StatusCode == HttpStatusCode.OK)
+            {
+                var jwtCookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    Expires = DateTime.UtcNow.AddHours(1)
+                };
+
+                if (dto.JwtToken != null && dto.RefreshToken != null)
+                {
+                    Response.Cookies.Append("jwt", dto.JwtToken, jwtCookieOptions);
+                }
+            }
+            return StatusCode((int)dto.StatusCode, dto.Message);
+        }
+        */
     }
 }
