@@ -1,6 +1,5 @@
 using ArkeTest;
 using ArkeTest.Data;
-using ArkeTest.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;

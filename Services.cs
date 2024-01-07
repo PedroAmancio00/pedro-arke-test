@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using ArkeTest.Services.Login;
+﻿using ArkeTest.Services.Login;
 
 namespace ArkeTest
 {
@@ -8,6 +7,7 @@ namespace ArkeTest
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<CreateLoginService>();
+            services.AddScoped<AccessAccountService>();
         }
     }
 }

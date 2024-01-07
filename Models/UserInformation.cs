@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 
 namespace ArkeTest.Models
 {
@@ -19,7 +18,7 @@ namespace ArkeTest.Models
         public string? LoginId { get; set; }
 
         [ForeignKey("LoginId")]
-        public virtual IdentityUser? Login { get; set; }
+        public virtual ApplicationUser? Login { get; set; }
 
         public UserInformation(string name, string loginId)
         {

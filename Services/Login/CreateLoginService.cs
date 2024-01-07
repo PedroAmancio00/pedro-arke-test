@@ -1,5 +1,5 @@
-﻿using ArkeTest.Data;
-using ArkeTest.DTO;
+﻿using ArkeTest.DTO;
+using ArkeTest.DTO.Login;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
 
@@ -23,34 +23,35 @@ namespace ArkeTest.Services.Login
                 IdentityUser login = new()
                 {
                     Email = dto.Email,
-                    UserName = dto.Email,
-                    PasswordHash = dto.Password
+                    UserName = dto.Email
                 };
 
-                var result = await _userManager.CreateAsync(login);
+                IdentityResult? result = await _userManager.CreateAsync(login, dto.Password);
                 
                 if (!result.Succeeded)
                 {
                     string message = result.Errors.Select(e => e.Description).Aggregate((a, b) => $"{a}, {b}");
 
-                    ReturnDTO erorReturnDTO = new()
+                    ReturnDTO returnDTO = new()
                     {
                         Message = message,
                         StatusCode = HttpStatusCode.Conflict
                     };
                     _logger.LogInformation("Error creating login");
-                    return erorReturnDTO;
+                    return returnDTO;
                 }
 
-                ReturnDTO returnDTO = new()
-                {
-                    Message = "Login Created",
-                    StatusCode = HttpStatusCode.Created     
-                };
-                _logger.LogInformation("Login created");
+                else{ 
 
-                return returnDTO;
+                    ReturnDTO returnDTO = new()
+                    {
+                        Message = "Login Created",
+                        StatusCode = HttpStatusCode.Created     
+                    };
+                    _logger.LogInformation("Login created");
 
+                    return returnDTO;
+                }
             }
             catch (Exception e)
             {
@@ -63,8 +64,7 @@ namespace ArkeTest.Services.Login
                 };
 
                 return returnDTO;
-            }
-           
+            }           
         }
     }
 }

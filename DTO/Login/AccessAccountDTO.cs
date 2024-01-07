@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace ArkeTest.DTO
 {
-    public class CreateLoginDTO
+    public class AccessAccountDTO
     {
         [Required]
         [MaxLength(100)]

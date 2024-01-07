@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArkeTest.Data
 {
-    public class MyDbContext : IdentityDbContext<IdentityUser>
+    public class MyDbContext : IdentityDbContext<ApplicationUser>
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {

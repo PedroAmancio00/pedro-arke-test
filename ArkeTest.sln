@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkeTest", "ArkeTest.csproj", "{9A3F1BC1-B519-4284-AFEF-024D452C2B14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArkeTest", "ArkeTest.csproj", "{9A3F1BC1-B519-4284-AFEF-024D452C2B14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkeTeste.Tests", "..\ArkeTeste.Tests\ArkeTeste.Tests.csproj", "{2F38CB2A-B326-4CEA-953E-3897DDF14325}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9A3F1BC1-B519-4284-AFEF-024D452C2B14} = {9A3F1BC1-B519-4284-AFEF-024D452C2B14}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{9A3F1BC1-B519-4284-AFEF-024D452C2B14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A3F1BC1-B519-4284-AFEF-024D452C2B14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A3F1BC1-B519-4284-AFEF-024D452C2B14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F38CB2A-B326-4CEA-953E-3897DDF14325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F38CB2A-B326-4CEA-953E-3897DDF14325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F38CB2A-B326-4CEA-953E-3897DDF14325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F38CB2A-B326-4CEA-953E-3897DDF14325}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
