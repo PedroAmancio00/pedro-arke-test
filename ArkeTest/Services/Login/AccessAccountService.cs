@@ -78,7 +78,7 @@ namespace ArkeTest.Services.Login
 
         }
 
-        private async Task<(string, string)> GenerateJwtAndRefreshToken(ApplicationUser user)
+        public async Task<(string, string)> GenerateJwtAndRefreshToken(ApplicationUser user)
         {
 
 #pragma warning disable CS8604 // Possible null reference argument.
@@ -115,7 +115,7 @@ namespace ArkeTest.Services.Login
         }
 
 
-        private async Task<bool> SaveRefreshToken(ApplicationUser user, string refreshToken)
+        public async Task<bool> SaveRefreshToken(ApplicationUser user, string refreshToken)
         {
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7).ToUniversalTime();
