@@ -1,10 +1,8 @@
-﻿using ArkeTest.DTO;
-using ArkeTest.Models;
+﻿using ArkeTest.Models;
 using ArkeTest.Services.Login.ILogin;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -22,9 +20,11 @@ namespace ArkeTest.Services.Login
         {
             try
             {
+                // Create the security key
                 SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes("bf5ec0cf8bdd34c7508f8d40a7df96b32ff4f2699b96f88076dc9b746b01eb82"));
                 SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
 
+                // Create the claims
 #pragma warning disable CS8604 // Possible null reference argument.
                 Claim[] claims =
                 [
@@ -33,6 +33,7 @@ namespace ArkeTest.Services.Login
                 ];
 #pragma warning restore CS8604 // Possible null reference argument.
 
+                // Create the token
                 JwtSecurityToken token = new(
                     claims: claims,
                     expires: DateTime.Now.AddMinutes(60),
@@ -47,6 +48,7 @@ namespace ArkeTest.Services.Login
                     Expires = DateTime.Now.AddHours(1)
                 };
 
+                // Add the token to the cookie
                 _httpContextAccessor.HttpContext?.Response.Cookies.Append("jwt", jwt, jwtCookieOptions);
 
                 _logger.LogInformation("JWT generated successfully");
@@ -54,6 +56,7 @@ namespace ArkeTest.Services.Login
                 return;
 
             }
+            // If there is an error, throw an exception
             catch (Exception)
             {
                 _logger.LogInformation("Error generating JWT");
@@ -66,12 +69,15 @@ namespace ArkeTest.Services.Login
         {
             try
             {
+                // Generate a refresh token
                 string refreshToken = Guid.NewGuid().ToString().Replace("-", "");
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7).ToUniversalTime();
 
+                // Update the user
                 IdentityResult? result = await _userManager.UpdateAsync(user);
 
+                // If the user is updated, add the refresh token to the cookie
                 if (result != null && result.Succeeded)
                 {
 
@@ -89,6 +95,7 @@ namespace ArkeTest.Services.Login
 
                 return;
             }
+            // If there is an error, throw an exception
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating Refresh Token");
@@ -100,11 +107,13 @@ namespace ArkeTest.Services.Login
         {
             try
             {
+                // Remove the tokens from the cookie
                 _httpContextAccessor.HttpContext?.Response.Cookies.Delete("jwt");
                 _httpContextAccessor.HttpContext?.Response.Cookies.Delete("refreshToken");
                 _logger.LogInformation("Tokens removed");
                 return;
             }
+            // If there is an error, throw an exception
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error removing tokens");
@@ -116,12 +125,14 @@ namespace ArkeTest.Services.Login
         {
             try
             {
+                // Get the refresh token from the cookie
                 string? token = null;
 
                 _httpContextAccessor.HttpContext?.Request.Cookies.TryGetValue("refreshToken", out token);
 
                 return token;
             }
+            // If there is an error, throw an exception
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting refresh");
