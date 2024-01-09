@@ -9,11 +9,11 @@ namespace ArkeTest.Controllers
     public class UserController() : ControllerBase
     {
         [Authorize]
-        [HttpPost(Name = "UserController")]
+        [HttpPost(Name = "CreatUser")]
         [SwaggerOperation(Summary = "Create a new user")]
-        public string CreatUser()
+        public IActionResult CreatUser()
         {
-            return "teste";
+            return Ok();
         }
     }
 }

@@ -2,15 +2,12 @@ using ArkeTest;
 using ArkeTest.Data;
 using ArkeTest.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -63,7 +60,7 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Logging.AddConsole();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 ApplyMigrations(app);
 
@@ -83,8 +80,8 @@ app.Run();
 
 static void ApplyMigrations(WebApplication app)
 {
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+    using IServiceScope scope = app.Services.CreateScope();
+    MyDbContext db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
     db.Database.Migrate();
 }
 
@@ -93,19 +90,10 @@ static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
     app.Use(async (context, next) =>
     {
-        var token = context.Request.Cookies["jwt"];
+        string? token = context.Request.Cookies["jwt"];
         if (!string.IsNullOrEmpty(token))
         {
-            var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var expiry = jwtSecurityToken.ValidTo;
-            if(expiry > DateTime.Now)
-            {
-                context.Request.Headers.Append("Authorization", "Bearer " + token);
-            }  
-            else
-            {
-                context.Response.Cookies.Delete("jwt");
-            }
+            context.Request.Headers.Append("Authorization", "Bearer " + token);
         }
         await next.Invoke();
     });

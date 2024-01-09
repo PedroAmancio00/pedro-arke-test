@@ -27,7 +27,7 @@ namespace ArkeTest.DTO.Login
                 return new ValidationResult("Password is required.");
             }
 
-            var password = value.ToString();
+            string? password = value.ToString();
 
 #pragma warning disable CS8604 // Possible null reference argument.
             if (!Regex.IsMatch(password, @"(?=.*\p{Lu})") ||         // At least one upper case

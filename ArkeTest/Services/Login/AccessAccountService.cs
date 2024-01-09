@@ -1,20 +1,18 @@
 ﻿using ArkeTest.DTO;
 using ArkeTest.Models;
+using ArkeTest.Services.Login.ILogin;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Security.Claims;
-using System.Text;
 
 namespace ArkeTest.Services.Login
 {
-    public class AccessAccountService(UserManager<ApplicationUser> userManager, ILogger<AccessAccountService> logger)
+    public class AccessAccountService(UserManager<ApplicationUser> userManager, IJwtService jwtService, ILogger<AccessAccountService> logger) : IAccessAccountService
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly IJwtService _jwtService = jwtService;
         private readonly ILogger<AccessAccountService> _logger = logger;
 
-        public async Task<ReturnJwtDTO> AccessAccount(AccessAccountDTO dto)
+        public async Task<ReturnDTO> AccessAccount(AccessAccountDTO dto)
         {
             try
             {
@@ -22,7 +20,7 @@ namespace ArkeTest.Services.Login
 
                 if (login == null)
                 {
-                    ReturnJwtDTO returnDTO = new()
+                    ReturnDTO returnDTO = new()
                     {
                         Message = "Email or Password is wrong",
                         StatusCode = HttpStatusCode.Conflict,
@@ -36,7 +34,7 @@ namespace ArkeTest.Services.Login
 
                 if (!isPasswordCorrect)
                 {
-                    ReturnJwtDTO returnDTO = new()
+                    ReturnDTO returnDTO = new()
                     {
                         Message = "Email or Password is wrong",
                         StatusCode = HttpStatusCode.Conflict
@@ -48,14 +46,14 @@ namespace ArkeTest.Services.Login
 
                 else
                 {
-                    var tokens = await GenerateJwtAndRefreshToken(login);
+                    _jwtService.GenerateJwtToken(login);
 
-                    ReturnJwtDTO returnDTO = new()
+                    await _jwtService.GenerateRefreshToken(login);
+
+                    ReturnDTO returnDTO = new()
                     {
                         Message = "Successful Login",
-                        StatusCode = HttpStatusCode.OK,
-                        JwtToken = tokens.Item1,
-                        RefreshToken = tokens.Item2
+                        StatusCode = HttpStatusCode.OK
                     };
                     _logger.LogInformation("successful Login");
 
@@ -63,11 +61,11 @@ namespace ArkeTest.Services.Login
                 }
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError(e, "Internal error on login");
+                _logger.LogError(ex, "Internal error on login");
 
-                ReturnJwtDTO returnDTO = new()
+                ReturnDTO returnDTO = new()
                 {
                     Message = "Error on login",
                     StatusCode = HttpStatusCode.InternalServerError
@@ -77,52 +75,5 @@ namespace ArkeTest.Services.Login
             }
 
         }
-
-        public async Task<(string, string)> GenerateJwtAndRefreshToken(ApplicationUser user)
-        {
-
-#pragma warning disable CS8604 // Possible null reference argument.
-            var jwtToken = GenerateJwtToken(user.Id, user.UserName);
-#pragma warning restore CS8604 // Possible null reference argument.
-
-            var refreshToken = Guid.NewGuid().ToString().Replace("-", "");
-
-            await SaveRefreshToken(user, refreshToken);
-
-            return (jwtToken, refreshToken);
-        }
-
-
-        public string GenerateJwtToken(string id, string username)
-        {
-            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes("bf5ec0cf8bdd34c7508f8d40a7df96b32ff4f2699b96f88076dc9b746b01eb82"));
-            SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
-
-            Claim[] claims =
-            {
-                new(JwtRegisteredClaimNames.Sub, username),
-                new(JwtRegisteredClaimNames.Jti, id),
-            };
-
-            JwtSecurityToken token = new(
-                issuer: "YourIssuer",
-                audience: "YourAudience",
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(60),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-
-        public async Task<bool> SaveRefreshToken(ApplicationUser user, string refreshToken)
-        {
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7).ToUniversalTime();
-
-            var result = await _userManager.UpdateAsync(user);
-            return result.Succeeded;
-        }
-
     }
 }

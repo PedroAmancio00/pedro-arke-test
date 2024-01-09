@@ -1,4 +1,5 @@
 ﻿using ArkeTest.Services.Login;
+using ArkeTest.Services.Login.ILogin;
 
 namespace ArkeTest
 {
@@ -6,8 +7,12 @@ namespace ArkeTest
     {
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddScoped<CreateLoginService>();
-            services.AddScoped<AccessAccountService>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICreateLoginService, CreateLoginService>();
+            services.AddScoped<IAccessAccountService, AccessAccountService>();
+            services.AddScoped<IRefreshService, RefreshService>();
+            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<ILogoutService, LogoutService>();
         }
     }
 }

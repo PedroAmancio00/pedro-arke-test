@@ -1,6 +1,7 @@
 ﻿using ArkeTest.DTO;
 using ArkeTest.Models;
 using ArkeTest.Services.Login;
+using ArkeTest.Services.Login.ILogin;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,15 +12,16 @@ namespace ArkeTeste.Tests.Tests.Services.Login
     public class AccessAccountServiceTests
     {
         [Fact]
-        public async Task AccessAccount_ReturnsSuccess()
+        public async Task AccessAccount_Success()
         {
             // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
+            Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
+            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<AccessAccountService>>();
-            var accessAccountService = new AccessAccountService(mockUserManager.Object, mockILogger.Object);
+            Mock<ILogger<AccessAccountService>> mockILogger = new();
+            Mock<IJwtService> mockIJwtService = new();
+            AccessAccountService accessAccountService = new(mockUserManager.Object, mockIJwtService.Object, mockILogger.Object);
 
             AccessAccountDTO dto = new()
             {
@@ -28,17 +30,14 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             };
 
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
-              .ReturnsAsync(new ApplicationUser(){ Id = new Guid().ToString(), UserName = "test@test.com"});
+              .ReturnsAsync(new ApplicationUser() { Id = new Guid().ToString(), UserName = "test@test.com" });
 
             mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
               .ReturnsAsync(true);
 
-            mockUserManager.Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>()))
-              .ReturnsAsync(IdentityResult.Success);
 
 
-
-            var result = await accessAccountService.AccessAccount(dto);
+            ReturnDTO result = await accessAccountService.AccessAccount(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -52,20 +51,20 @@ namespace ArkeTeste.Tests.Tests.Services.Login
 
             mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
             mockUserManager.Verify(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
-            mockUserManager.Verify(x => x.UpdateAsync(It.IsAny<ApplicationUser>()), Times.Once);
         }
 
 
         [Fact]
-        public async Task AccessAccount_ReturnsConflictEmail()
+        public async Task AccessAccount_Email_Conflict()
         {
             // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
+            Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
+            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<AccessAccountService>>();
-            var accessAccountService = new AccessAccountService(mockUserManager.Object, mockILogger.Object);
+            Mock<ILogger<AccessAccountService>> mockILogger = new();
+            Mock<IJwtService> mockIJwtService = new();
+            AccessAccountService accessAccountService = new(mockUserManager.Object, mockIJwtService.Object, mockILogger.Object);
 
             AccessAccountDTO dto = new()
             {
@@ -76,7 +75,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
               .ReturnsAsync(null as ApplicationUser);
 
-            var result = await accessAccountService.AccessAccount(dto);
+            ReturnDTO result = await accessAccountService.AccessAccount(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -94,15 +93,16 @@ namespace ArkeTeste.Tests.Tests.Services.Login
 
 
         [Fact]
-        public async Task AccessAccount_ReturnsConflictPassword()
+        public async Task AccessAccount_Password_Conflict()
         {
             // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
+            Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
+            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<AccessAccountService>>();
-            var accessAccountService = new AccessAccountService(mockUserManager.Object, mockILogger.Object);
+            Mock<ILogger<AccessAccountService>> mockILogger = new();
+            Mock<IJwtService> mockIJwtService = new();
+            AccessAccountService accessAccountService = new(mockUserManager.Object, mockIJwtService.Object, mockILogger.Object);
 
             AccessAccountDTO dto = new()
             {
@@ -116,7 +116,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
               .ReturnsAsync(false);
 
-            var result = await accessAccountService.AccessAccount(dto);
+            ReturnDTO result = await accessAccountService.AccessAccount(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -132,69 +132,5 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             mockUserManager.Verify(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
         }
 
-
-        [Fact]
-        public async Task AccessAccount_GenerateJwtAndRefreshToken()
-        {
-            // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<AccessAccountService>>();
-            var accessAccountService = new AccessAccountService(mockUserManager.Object, mockILogger.Object);
-
-            ApplicationUser applicationUser = new() { Id = new Guid().ToString(), UserName = "test@test.com" };
-
-            mockUserManager.Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>()))
-              .ReturnsAsync(IdentityResult.Success);
-
-            var result = await accessAccountService.GenerateJwtAndRefreshToken(applicationUser);
-
-            Assert.NotNull(result.Item1);
-            Assert.NotNull(result.Item2);
-            mockUserManager.Verify(x => x.UpdateAsync(It.IsAny<ApplicationUser>()), Times.Once);
-        }
-
-        [Fact]
-        public void AccessAccount_GenerateJwtToken()
-        {
-            // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<AccessAccountService>>();
-            var accessAccountService = new AccessAccountService(mockUserManager.Object, mockILogger.Object);
-
-            ApplicationUser applicationUser = new() { Id = new Guid().ToString(), UserName = "test@test.com" };
-
-            var result = accessAccountService.GenerateJwtToken(applicationUser.Id, applicationUser.UserName);
-
-            Assert.NotNull(result);
-        }
-
-        [Fact]
-        public async Task AccessAccount_SaveRefreshToken()
-        {
-            // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<AccessAccountService>>();
-            var accessAccountService = new AccessAccountService(mockUserManager.Object, mockILogger.Object);
-
-            ApplicationUser applicationUser = new() { Id = new Guid().ToString(), UserName = "test@test.com" };
-
-            mockUserManager.Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>()))
-             .ReturnsAsync(IdentityResult.Success);
-
-            var result = await accessAccountService.SaveRefreshToken(applicationUser, "test");
-
-            Assert.True(result);
-
-            mockUserManager.Verify(x => x.UpdateAsync(It.IsAny<ApplicationUser>()), Times.Once);
-        }
     }
 }

@@ -1,26 +1,23 @@
 ﻿using ArkeTest.DTO;
 using ArkeTest.DTO.Login;
-using ArkeTest.Services.Login;
+using ArkeTest.Services.Login.ILogin;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
 
 namespace ArkeTest.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class LoginController: ControllerBase
+    public class LoginController(ICreateLoginService createLoginService,
+                                 IAccessAccountService accessAccountService,
+                                 IRefreshService refreshService,
+                                 ILogoutService logoutService) : ControllerBase
     {
+        private readonly ICreateLoginService _createLoginService = createLoginService;
+        private readonly IAccessAccountService _accessAccountService = accessAccountService;
+        private readonly IRefreshService _refreshService = refreshService;
+        private readonly ILogoutService _logoutService = logoutService;
 
-        private readonly CreateLoginService _createLoginService;
-        private readonly AccessAccountService _accessAccountService;
-
-        public LoginController(CreateLoginService createLoginService, AccessAccountService accessAccountService)
-        {
-            _createLoginService = createLoginService;
-            _accessAccountService = accessAccountService;
-
-        }
 
         [HttpPost("create", Name = "CreateLogin")]
         [SwaggerOperation(Summary = "Create a new login", Description = "Creates a Login for the authentication")]
@@ -36,60 +33,39 @@ namespace ArkeTest.Controllers
 
         [HttpPost(Name = "AccessAccount")]
         [SwaggerOperation(Summary = "Access user login", Description = "Access user login verifying information")]
-        [SwaggerResponse(201, "Login Successful")]
+        [SwaggerResponse(200, "Login Successful")]
         [SwaggerResponse(409, "Email not found or wrong password")]
         [SwaggerResponse(500, "Internal Server error")]
         public async Task<IActionResult> AccessAccount([FromBody] AccessAccountDTO accessAccount)
         {
-            ReturnJwtDTO dto = await _accessAccountService.AccessAccount(accessAccount);
+            ReturnDTO dto = await _accessAccountService.AccessAccount(accessAccount);
 
-            if(dto.StatusCode == HttpStatusCode.OK)
-            {
-                var jwtCookieOptions = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    Expires = DateTime.UtcNow.AddHours(1)
-                };
-               
-                var refreshTokenCookieOptions = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    Expires = DateTime.UtcNow.AddDays(7)
-                };
-                if (dto.JwtToken != null && dto.RefreshToken != null)
-                {
-                    Response.Cookies.Append("jwt", dto.JwtToken, jwtCookieOptions);
-
-                    Response.Cookies.Append("refreshToken", dto.RefreshToken, refreshTokenCookieOptions);
-                }
-            }
             return StatusCode((int)dto.StatusCode, dto.Message);
         }
-        /*
-        [HttpPost("refresh", Name = "Refresh")]
+
+        [HttpGet("Refresh", Name = "Refresh")]
         [SwaggerOperation(Summary = "Refresh JWT", Description = "Refresh the JWT token")]
-        public async Task<IActionResult> Refresh([FromHeader] string token)
+        [SwaggerResponse(200, "Login Successful")]
+        [SwaggerResponse(404, "Refresh Token not found on database or cookie")]
+        [SwaggerResponse(500, "Internal Server error")]
+        public async Task<IActionResult> Refresh()
         {
-            ReturnJwtDTO dto = await _accessAccountService.Refresh(accessAccount);
+            ReturnDTO dto = await _refreshService.Refresh();
 
-            if (dto.StatusCode == HttpStatusCode.OK)
-            {
-                var jwtCookieOptions = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    Expires = DateTime.UtcNow.AddHours(1)
-                };
-
-                if (dto.JwtToken != null && dto.RefreshToken != null)
-                {
-                    Response.Cookies.Append("jwt", dto.JwtToken, jwtCookieOptions);
-                }
-            }
             return StatusCode((int)dto.StatusCode, dto.Message);
         }
-        */
+
+        [HttpGet("Logout", Name = "Logout")]
+        [SwaggerOperation(Summary = "Logout", Description = "Log the user out, excluding both cookies")]
+        [SwaggerResponse(200, "Login Successful")]
+        [SwaggerResponse(404, "Refresh Token not found on database or cookie")]
+        [SwaggerResponse(500, "Internal Server error")]
+        public IActionResult Logout()
+        {
+            ReturnDTO dto = _logoutService.Logout();
+
+            return StatusCode((int)dto.StatusCode, dto.Message);
+        }
+
     }
 }

@@ -12,15 +12,15 @@ namespace ArkeTest.Tests.Services.Login
     public class CreateLoginServiceTests
     {
         [Fact]
-        public async Task CreateLogin_ReturnsSuccess()
+        public async Task CreateLogin_Success()
         {
             // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
+            Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
+            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<CreateLoginService>>();
-            var createLoginService = new CreateLoginService(mockUserManager.Object, mockILogger.Object);
+            Mock<ILogger<CreateLoginService>> mockILogger = new();
+            CreateLoginService createLoginService = new(mockUserManager.Object, mockILogger.Object);
 
             CreateLoginDTO dto = new()
             {
@@ -31,7 +31,7 @@ namespace ArkeTest.Tests.Services.Login
             mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                       .ReturnsAsync(IdentityResult.Success);
 
-            var result = await createLoginService.CreateLogin(dto);
+            ReturnDTO result = await createLoginService.CreateLogin(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -47,15 +47,15 @@ namespace ArkeTest.Tests.Services.Login
         }
 
         [Fact]
-        public async Task CreateLogin_ReturnsConflict()
+        public async Task CreateLogin_Conflict()
         {
             // Arrange
-            var store = new Mock<IUserStore<ApplicationUser>>();
+            Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
+            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            var mockILogger = new Mock<ILogger<CreateLoginService>>();
-            var createLoginService = new CreateLoginService(mockUserManager.Object, mockILogger.Object);
+            Mock<ILogger<CreateLoginService>> mockILogger = new();
+            CreateLoginService createLoginService = new(mockUserManager.Object, mockILogger.Object);
 
             CreateLoginDTO dto = new()
             {
@@ -66,7 +66,7 @@ namespace ArkeTest.Tests.Services.Login
             mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                        .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Error creating login" }));
 
-            var result = await createLoginService.CreateLogin(dto);
+            ReturnDTO result = await createLoginService.CreateLogin(dto);
 
             ReturnDTO returnDTO = new()
             {
