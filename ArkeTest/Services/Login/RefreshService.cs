@@ -17,8 +17,10 @@ namespace ArkeTest.Services.Login
         {
             try
             {
+                // Get the refresh token from the cookie
                 string? token = _jwtService.GetRefreshToken();
 
+                // If the token is null, return a 404
                 if (token == null)
                 {
                     ReturnDTO returnDTO = new()
@@ -32,9 +34,11 @@ namespace ArkeTest.Services.Login
                 }
                 else
                 {
+                    // Find the user with the refresh token
                     ApplicationUser? login = await _db.ApplicationUsers
                         .FirstOrDefaultAsync(x => x.RefreshToken == token && x.RefreshTokenExpiryTime >= DateTime.UtcNow);
 
+                    // If the user is null, return a 404
                     if (login == null)
                     {
 
@@ -50,6 +54,7 @@ namespace ArkeTest.Services.Login
                     }
                     else
                     {
+                        // Generate a new JWT token
                         _jwtService.GenerateJwtToken(login);
 
                         ReturnDTO returnDTO = new()
@@ -63,6 +68,7 @@ namespace ArkeTest.Services.Login
                     }
                 }
             }
+            // If there is an exception, return a 500
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Internal error logging in");
