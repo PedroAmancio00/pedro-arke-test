@@ -14,7 +14,7 @@ namespace ArkeTest.Tests.Services.Login
         [Fact]
         public async Task CreateLogin_Success()
         {
-            // Arrange
+            // Mocking services
             Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
@@ -28,9 +28,11 @@ namespace ArkeTest.Tests.Services.Login
                 Password = "Password123!"
             };
 
+            // Mocking functions
             mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                       .ReturnsAsync(IdentityResult.Success);
 
+            // Getting result
             ReturnDTO result = await createLoginService.CreateLogin(dto);
 
             ReturnDTO returnDTO = new()
@@ -39,6 +41,7 @@ namespace ArkeTest.Tests.Services.Login
                 StatusCode = HttpStatusCode.Created
             };
 
+            // Asserting
             Assert.NotNull(result);
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
@@ -49,7 +52,7 @@ namespace ArkeTest.Tests.Services.Login
         [Fact]
         public async Task CreateLogin_Conflict()
         {
-            // Arrange
+            // Mocking services
             Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
@@ -63,9 +66,11 @@ namespace ArkeTest.Tests.Services.Login
                 Password = "Password123!"
             };
 
+            // Mocking functions to fail
             mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                        .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Error creating login" }));
 
+            // Getting result
             ReturnDTO result = await createLoginService.CreateLogin(dto);
 
             ReturnDTO returnDTO = new()
@@ -74,6 +79,7 @@ namespace ArkeTest.Tests.Services.Login
                 StatusCode = HttpStatusCode.Conflict
             };
 
+            // Asserting
             Assert.NotNull(result);
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);

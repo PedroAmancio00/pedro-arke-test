@@ -22,8 +22,10 @@ namespace ArkeTest.Services.Login
                     UserName = dto.Email
                 };
 
+                // Creating login
                 IdentityResult? result = await _userManager.CreateAsync(login, dto.Password);
 
+                // If the login is not created, return a 409
                 if (!result.Succeeded)
                 {
                     string message = result.Errors.Select(e => e.Description).Aggregate((a, b) => $"{a}, {b}");
@@ -39,7 +41,7 @@ namespace ArkeTest.Services.Login
 
                 else
                 {
-
+                    // If the login is created, return a 201
                     ReturnDTO returnDTO = new()
                     {
                         Message = "Login Created",
@@ -50,8 +52,9 @@ namespace ArkeTest.Services.Login
                     return returnDTO;
                 }
             }
+            // If there is an error, return a 500
             catch (Exception ex)
-            {
+            {                
                 _logger.LogError(ex, "Internal error creating login");
 
                 ReturnDTO returnDTO = new()
