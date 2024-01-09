@@ -31,7 +31,6 @@ namespace ArkeTeste.Tests.Tests.Services
             mockMyDbContext.SaveChanges();
 
             // Mocking services
-            Mock<IHttpContextAccessor> mockIHttpContextAccessor = new();
             Mock<ILogger<RefreshService>> mockILogger = new();
             Mock<IJwtService> mockIJwtService = new();
             RefreshService refreshService = new(mockMyDbContext, mockIJwtService.Object, mockILogger.Object);
@@ -67,7 +66,6 @@ namespace ArkeTeste.Tests.Tests.Services
             MyDbContext mockMyDbContext = new(options);
 
             // Mocking services
-            Mock<IHttpContextAccessor> mockIHttpContextAccessor = new();
             Mock<ILogger<RefreshService>> mockILogger = new();
             Mock<IJwtService> mockIJwtService = new();
             Mock<IResponseCookies> mockCookieCollection = new();
@@ -105,7 +103,6 @@ namespace ArkeTeste.Tests.Tests.Services
             MyDbContext mockMyDbContext = new(options);
 
             // Mocking services
-            Mock<IHttpContextAccessor> mockIHttpContextAccessor = new();
             Mock<ILogger<RefreshService>> mockILogger = new();
             Mock<IJwtService> mockIJwtService = new();
             Mock<IResponseCookies> mockCookieCollection = new();

@@ -57,8 +57,7 @@ namespace ArkeTest.Controllers
 
         [HttpGet("Logout", Name = "Logout")]
         [SwaggerOperation(Summary = "Logout", Description = "Log the user out, excluding both cookies")]
-        [SwaggerResponse(200, "Login Successful")]
-        [SwaggerResponse(404, "Refresh Token not found on database or cookie")]
+        [SwaggerResponse(200, "Logout Successful")]
         [SwaggerResponse(500, "Internal Server error")]
         public IActionResult Logout()
         {
