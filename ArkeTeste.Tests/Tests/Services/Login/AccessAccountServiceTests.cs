@@ -14,7 +14,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
         [Fact]
         public async Task AccessAccount_Success()
         {
-            // Arrange
+            // Mocking services
             Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
@@ -29,14 +29,14 @@ namespace ArkeTeste.Tests.Tests.Services.Login
                 Password = "Password123!"
             };
 
+            // Mocking functions
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
               .ReturnsAsync(new ApplicationUser() { Id = new Guid().ToString(), UserName = "test@test.com" });
 
             mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
               .ReturnsAsync(true);
 
-
-
+            // Getting result
             ReturnDTO result = await accessAccountService.AccessAccount(dto);
 
             ReturnDTO returnDTO = new()
@@ -45,6 +45,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
                 StatusCode = HttpStatusCode.OK
             };
 
+            // Asserting
             Assert.NotNull(result);
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
@@ -57,7 +58,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
         [Fact]
         public async Task AccessAccount_Email_Conflict()
         {
-            // Arrange
+            // Mocking services
             Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
@@ -72,9 +73,11 @@ namespace ArkeTeste.Tests.Tests.Services.Login
                 Password = "Password123!"
             };
 
+            // Mocking functions to fail
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
               .ReturnsAsync(null as ApplicationUser);
 
+            // Getting result
             ReturnDTO result = await accessAccountService.AccessAccount(dto);
 
             ReturnDTO returnDTO = new()
@@ -83,6 +86,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
                 StatusCode = HttpStatusCode.Conflict
             };
 
+            // Asserting
             Assert.NotNull(result);
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
@@ -95,7 +99,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
         [Fact]
         public async Task AccessAccount_Password_Conflict()
         {
-            // Arrange
+            // Mocking services
             Mock<IUserStore<ApplicationUser>> store = new();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
@@ -110,12 +114,15 @@ namespace ArkeTeste.Tests.Tests.Services.Login
                 Password = "Password123!"
             };
 
+            // Mocking functions
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
              .ReturnsAsync(new ApplicationUser() { Id = new Guid().ToString(), UserName = "test@test.com" });
 
+            // Mocking functions to fail
             mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
               .ReturnsAsync(false);
 
+            // Getting result
             ReturnDTO result = await accessAccountService.AccessAccount(dto);
 
             ReturnDTO returnDTO = new()
@@ -124,6 +131,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
                 StatusCode = HttpStatusCode.Conflict
             };
 
+            // Asserting
             Assert.NotNull(result);
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);

@@ -16,8 +16,10 @@ namespace ArkeTest.Services.Login
         {
             try
             {
+                // Find the user with the email
                 ApplicationUser? login = await _userManager.FindByEmailAsync(dto.Email);
 
+                // If the user is null, return a 404
                 if (login == null)
                 {
                     ReturnDTO returnDTO = new()
@@ -30,8 +32,10 @@ namespace ArkeTest.Services.Login
                     return returnDTO;
                 }
 
+                // Check if the password is correct
                 bool isPasswordCorrect = await _userManager.CheckPasswordAsync(login, dto.Password);
 
+                // If the password is not correct, return a 409
                 if (!isPasswordCorrect)
                 {
                     ReturnDTO returnDTO = new()
@@ -44,6 +48,7 @@ namespace ArkeTest.Services.Login
                     return returnDTO;
                 }
 
+                // If the password is correct, generate a new JWT token
                 else
                 {
                     _jwtService.GenerateJwtToken(login);
@@ -61,6 +66,8 @@ namespace ArkeTest.Services.Login
                 }
 
             }
+                
+            // If there is an error, return a 500
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Internal error on login");
