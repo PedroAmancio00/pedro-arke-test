@@ -7,10 +7,17 @@ using System.Net;
 
 namespace ArkeTest.Services.Login
 {
-    public class CreateLoginService(UserManager<ApplicationUser> userManager, ILogger<CreateLoginService> logger) : ICreateLoginService
+    public class CreateLoginService : ICreateLoginService
     {
-        private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly ILogger<CreateLoginService> _logger = logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<CreateLoginService> _logger;
+
+        public CreateLoginService(UserManager<ApplicationUser> userManager, ILogger<CreateLoginService> logger)
+        {
+            _userManager = userManager;
+            _logger = logger;
+        }
+
 
         public async Task<ReturnDTO> CreateLogin(CreateLoginDTO dto)
         {
@@ -54,7 +61,7 @@ namespace ArkeTest.Services.Login
             }
             // If there is an error, return a 500
             catch (Exception ex)
-            {                
+            {
                 _logger.LogError(ex, "Internal error creating login");
 
                 ReturnDTO returnDTO = new()

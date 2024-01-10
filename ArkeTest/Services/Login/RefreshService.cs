@@ -7,11 +7,18 @@ using System.Net;
 
 namespace ArkeTest.Services.Login
 {
-    public class RefreshService(MyDbContext db, IJwtService jwtService, ILogger<RefreshService> logger) : IRefreshService
+    public class RefreshService : IRefreshService
     {
-        private readonly MyDbContext _db = db;
-        private readonly ILogger<RefreshService> _logger = logger;
-        private readonly IJwtService _jwtService = jwtService;
+        private readonly MyDbContext _db;
+        private readonly ILogger<RefreshService> _logger;
+        private readonly IJwtService _jwtService;
+
+        public RefreshService(MyDbContext db, IJwtService jwtService, ILogger<RefreshService> logger)
+        {
+            _db = db;
+            _jwtService = jwtService;
+            _logger = logger;
+        }
 
         public async Task<ReturnDTO> Refresh()
         {

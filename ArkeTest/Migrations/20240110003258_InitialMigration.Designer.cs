@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ArkeTest.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240107172455_InitialMigration")]
+    [Migration("20240110003258_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -92,6 +92,8 @@ namespace ArkeTest.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
+                    b.HasIndex("RefreshToken");
+
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
@@ -109,9 +111,8 @@ namespace ArkeTest.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -128,16 +129,21 @@ namespace ArkeTest.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Description");
 
                     b.HasIndex("Name");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("ArkeTest.Models.UserInformation", b =>
+            modelBuilder.Entity("ArkeTest.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -304,7 +310,18 @@ namespace ArkeTest.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ArkeTest.Models.UserInformation", b =>
+            modelBuilder.Entity("ArkeTest.Models.Product", b =>
+                {
+                    b.HasOne("ArkeTest.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ArkeTest.Models.User", b =>
                 {
                     b.HasOne("ArkeTest.Models.ApplicationUser", "Login")
                         .WithMany()

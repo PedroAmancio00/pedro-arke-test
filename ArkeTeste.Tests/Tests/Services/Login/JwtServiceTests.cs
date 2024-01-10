@@ -1,7 +1,8 @@
 ﻿using ArkeTest.Models;
-using ArkeTest.Services.Login;
+using ArkeTest.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -22,7 +23,8 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Mock<HttpContext> mockHttpContext = new();
             Mock<HttpResponse> mockResponse = new();
             Mock<IResponseCookies> mockCookieCollection = new();
-            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object);
+            Mock<IConfiguration> mockIConfiguration = new();
+            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object, mockIConfiguration.Object);
 
             ApplicationUser applicationUser = new() { Id = new Guid().ToString(), UserName = "test@test.com" };
 
@@ -32,6 +34,10 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             mockHttpContext.SetupGet(x => x.Response).Returns(mockResponse.Object);
 
             mockIHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(mockHttpContext.Object);
+
+            string key = "e2e253a877ce8e0c23ca6d0ed0be12a39cc7b4e553302ddc226c6924ea66c0d5";
+
+            mockIConfiguration.Setup(x => x["jwtKey"]).Returns(key);
 
             // Getting result
             jwtService.GenerateJwtToken(applicationUser);
@@ -54,7 +60,8 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Mock<HttpContext> mockHttpContext = new();
             Mock<HttpResponse> mockResponse = new();
             Mock<IResponseCookies> mockCookieCollection = new();
-            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object);
+            Mock<IConfiguration> mockIConfiguration = new();
+            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object, mockIConfiguration.Object);
 
             ApplicationUser applicationUser = new() { Id = new Guid().ToString(), UserName = "test@test.com" };
 
@@ -87,7 +94,8 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Mock<HttpContext> mockHttpContext = new();
             Mock<HttpResponse> mockResponse = new();
             Mock<IResponseCookies> mockCookieCollection = new();
-            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object);
+            Mock<IConfiguration> mockIConfiguration = new();
+            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object, mockIConfiguration.Object);
 
             ApplicationUser applicationUser = new() { Id = new Guid().ToString(), UserName = "test@test.com" };
 
@@ -122,7 +130,8 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Mock<HttpContext> mockHttpContext = new();
             Mock<HttpResponse> mockResponse = new();
             Mock<IResponseCookies> mockCookieCollection = new();
-            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object);
+            Mock<IConfiguration> mockIConfiguration = new();
+            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object, mockIConfiguration.Object);
 
             ApplicationUser applicationUser = new() { Id = new Guid().ToString(), UserName = "test@test.com" };
 
@@ -154,7 +163,8 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Mock<HttpContext> mockHttpContext = new();
             Mock<HttpRequest> mockRequest = new();
             Mock<IRequestCookieCollection> mockCookieCollection = new();
-            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object);
+            Mock<IConfiguration> mockIConfiguration = new();
+            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object, mockIConfiguration.Object);
 
             // Mocking context
             mockIHttpContextAccessor.Setup(x => x.HttpContext).Returns(mockHttpContext.Object);
@@ -186,7 +196,8 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Mock<HttpContext> mockHttpContext = new();
             Mock<HttpRequest> mockRequest = new();
             Mock<IRequestCookieCollection> mockCookieCollection = new();
-            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object);
+            Mock<IConfiguration> mockIConfiguration = new();
+            JwtService jwtService = new(mockUserManager.Object, mockIHttpContextAccessor.Object, mockILogger.Object, mockIConfiguration.Object);
 
             // Mocking context
             mockIHttpContextAccessor.Setup(x => x.HttpContext).Returns(mockHttpContext.Object);

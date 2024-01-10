@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ArkeTest.Models
 {
@@ -13,16 +14,24 @@ namespace ArkeTest.Models
         public string Description { get; set; }
         [Precision(10, 2)]
         public decimal Price { get; set; }
-        public int Quantity { get; set; }
-        public string ImageUrl { get; set; }
 
-        public Product(string name, string description, decimal price, int quantity, string imageUrl)
+        public int Quantity { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public Guid UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public virtual User? User { get; set; }
+
+        public Product(string name, string description, decimal price, int quantity, Guid userId)
         {
             Name = name;
             Description = description;
             Price = price;
             Quantity = quantity;
-            ImageUrl = imageUrl;
+            IsActive = true;
+            UserId = userId;
         }
     }
 }

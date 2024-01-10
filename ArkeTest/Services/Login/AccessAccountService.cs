@@ -6,11 +6,18 @@ using System.Net;
 
 namespace ArkeTest.Services.Login
 {
-    public class AccessAccountService(UserManager<ApplicationUser> userManager, IJwtService jwtService, ILogger<AccessAccountService> logger) : IAccessAccountService
+    public class AccessAccountService : IAccessAccountService
     {
-        private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly IJwtService _jwtService = jwtService;
-        private readonly ILogger<AccessAccountService> _logger = logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IJwtService _jwtService;
+        private readonly ILogger<AccessAccountService> _logger;
+
+        public AccessAccountService(UserManager<ApplicationUser> userManager, IJwtService jwtService, ILogger<AccessAccountService> logger)
+        {
+            _userManager = userManager;
+            _jwtService = jwtService;
+            _logger = logger;
+        }
 
         public async Task<ReturnDTO> AccessAccount(AccessAccountDTO dto)
         {
@@ -66,7 +73,7 @@ namespace ArkeTest.Services.Login
                 }
 
             }
-                
+
             // If there is an error, return a 500
             catch (Exception ex)
             {

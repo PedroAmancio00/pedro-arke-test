@@ -6,22 +6,33 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ArkeTest.Services.Login
+namespace ArkeTest.Services
 {
-    public class JwtService(UserManager<ApplicationUser> userManager,
-                            IHttpContextAccessor httpContextAccessor,
-                            ILogger<JwtService> logger) : IJwtService
+    public class JwtService : IJwtService
     {
-        private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly ILogger<JwtService> _logger = logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<JwtService> _logger;
+        private readonly IConfiguration _configuration;
+
+        public JwtService(UserManager<ApplicationUser> userManager,
+                          IHttpContextAccessor httpContextAccessor,
+                          ILogger<JwtService> logger,
+                          IConfiguration configuration)
+        {
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
+            _configuration = configuration;
+        }
 
         public void GenerateJwtToken(ApplicationUser user)
         {
             try
             {
+                string secret = _configuration["jwtKey"]!;
                 // Create the security key
-                SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes("bf5ec0cf8bdd34c7508f8d40a7df96b32ff4f2699b96f88076dc9b746b01eb82"));
+                SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(secret));
                 SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
 
                 // Create the claims

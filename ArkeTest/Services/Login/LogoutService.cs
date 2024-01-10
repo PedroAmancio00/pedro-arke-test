@@ -4,10 +4,16 @@ using System.Net;
 
 namespace ArkeTest.Services.Login
 {
-    public class LogoutService(IJwtService jwtService, ILogger<LogoutService> logger) : ILogoutService
+    public class LogoutService : ILogoutService
     {
-        private readonly IJwtService _jwtService = jwtService;
-        private readonly ILogger<LogoutService> _logger = logger;
+        private readonly IJwtService _jwtService;
+        private readonly ILogger<LogoutService> _logger;
+
+        public LogoutService(IJwtService jwtService, ILogger<LogoutService> logger)
+        {
+            _jwtService = jwtService;
+            _logger = logger;
+        }
 
         public ReturnDTO Logout()
         {

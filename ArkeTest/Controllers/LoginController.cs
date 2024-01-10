@@ -11,12 +11,14 @@ namespace ArkeTest.Controllers
     public class LoginController(ICreateLoginService createLoginService,
                                  IAccessAccountService accessAccountService,
                                  IRefreshService refreshService,
-                                 ILogoutService logoutService) : ControllerBase
+                                 ILogoutService logoutService,
+                                 IChangePasswordService changePasswordService) : ControllerBase
     {
         private readonly ICreateLoginService _createLoginService = createLoginService;
         private readonly IAccessAccountService _accessAccountService = accessAccountService;
         private readonly IRefreshService _refreshService = refreshService;
         private readonly ILogoutService _logoutService = logoutService;
+        private readonly IChangePasswordService _changePasswordService = changePasswordService;
 
 
         [HttpPost("create", Name = "CreateLogin")]
@@ -62,6 +64,17 @@ namespace ArkeTest.Controllers
         public IActionResult Logout()
         {
             ReturnDTO dto = _logoutService.Logout();
+
+            return StatusCode((int)dto.StatusCode, dto.Message);
+        }
+
+        [HttpPatch("ChangePassword", Name = "ChangePassword")]
+        [SwaggerOperation(Summary = "ChangePassword", Description = "Change the user password, with the old password or the verification code (mocked)")]
+        [SwaggerResponse(200, "Password Changed")]
+        [SwaggerResponse(500, "Internal Server error")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            ReturnDTO dto = await _changePasswordService.ChangePassword(changePasswordDto);
 
             return StatusCode((int)dto.StatusCode, dto.Message);
         }
