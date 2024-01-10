@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ArkeTest.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240110003258_InitialMigration")]
+    [Migration("20240110025319_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
