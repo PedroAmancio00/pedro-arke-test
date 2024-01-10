@@ -7,11 +7,11 @@ namespace ArkeTest.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public required Guid Id { get; set; }
+        public Guid Id { get; set; }
 
-        public required DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public required DateTime ModifiedAt { get; set; }
+        public DateTime ModifiedAt { get; set; }
 
         public BaseEntity()
         {

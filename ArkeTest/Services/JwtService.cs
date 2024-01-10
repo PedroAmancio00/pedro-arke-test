@@ -150,5 +150,52 @@ namespace ArkeTest.Services
                 throw;
             }
         }
+
+        public string? GetAndDecodeJwtToken()
+        {
+            try
+            {
+                // Get the refresh token from the cookie
+                string? token = null;
+
+                _httpContextAccessor.HttpContext?.Request.Cookies.TryGetValue("jwt", out token);
+
+                string secret = _configuration["jwtKey"]!;
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                SecurityToken validatedToken;
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+
+                var claims = principal.Claims;
+
+                foreach (var claim in claims)
+                {
+                    if(claim.Type == "jti")
+                    {
+                        return claim.Value;
+                    }
+                }
+
+                return null;
+            }
+            // If there is an error, throw an exception
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting refresh");
+                throw;
+            }
+        }
     }
 }

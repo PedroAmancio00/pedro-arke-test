@@ -8,5 +8,6 @@ namespace ArkeTest.Services.Login.ILogin
         Task GenerateRefreshToken(ApplicationUser user);
         void RemoveTokens();
         string? GetRefreshToken();
+        string? GetAndDecodeJwtToken();
     }
 }

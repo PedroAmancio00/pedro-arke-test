@@ -1,6 +1,8 @@
 ﻿using ArkeTest.Services;
 using ArkeTest.Services.Login;
 using ArkeTest.Services.Login.ILogin;
+using ArkeTest.Services.User;
+using ArkeTest.Services.User.IUser;
 
 namespace ArkeTest
 {
@@ -15,6 +17,7 @@ namespace ArkeTest
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<ILogoutService, LogoutService>();
             services.AddScoped<IChangePasswordService, ChangePasswordService>();
+            services.AddScoped<ICreateUser, CreateOrUpdateUserService>();
         }
     }
 }
