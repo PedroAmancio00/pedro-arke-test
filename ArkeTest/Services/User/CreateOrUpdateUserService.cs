@@ -34,7 +34,7 @@ namespace ArkeTest.Services.User
                 ReturnDTO returnDTO = new()
                 {
                     Message = "User not logged in",
-                    StatusCode = HttpStatusCode.NotFound
+                    StatusCode = HttpStatusCode.BadRequest
                 };
                 _logger.LogInformation("User not logged in");
 
@@ -66,8 +66,8 @@ namespace ArkeTest.Services.User
                         await _db.SaveChangesAsync();
                         ReturnDTO returnDTO = new()
                         {
-                            Message = "User already exists",
-                            StatusCode = HttpStatusCode.BadRequest
+                            Message = "User updated",
+                            StatusCode = HttpStatusCode.OK
                         };
                         _logger.LogInformation("User already exists");
 
@@ -83,8 +83,8 @@ namespace ArkeTest.Services.User
 
                         ReturnDTO returnDTO = new()
                         {
-                            Message = "User Created",
-                            StatusCode = HttpStatusCode.OK
+                            Message = "User created",
+                            StatusCode = HttpStatusCode.Created
                         };
                         _logger.LogInformation("User created");
 
