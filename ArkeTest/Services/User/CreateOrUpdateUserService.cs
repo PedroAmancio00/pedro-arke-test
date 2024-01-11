@@ -68,7 +68,7 @@ namespace ArkeTest.Services.User
                             Message = "User updated",
                             StatusCode = HttpStatusCode.OK
                         };
-                        _logger.LogInformation("User already exists");
+                        _logger.LogInformation("User updated");
 
                         return returnDTO;
                     }

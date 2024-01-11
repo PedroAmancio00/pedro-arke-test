@@ -12,18 +12,27 @@ namespace ArkeTeste.Tests.Tests.Services.Login
 {
     public class ChangePasswordServiceTest
     {
+        private readonly ChangePasswordService _changePasswordService;
+        private readonly Mock<IUserStore<ApplicationUser>> _store;
+        private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
+        private readonly Mock<ILogger<ChangePasswordService>> _mockILogger;
+        private readonly Mock<IJwtService> _mockIJwtService;
+
+        public ChangePasswordServiceTest()
+        {
+            _store = new Mock<IUserStore<ApplicationUser>>();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            _mockUserManager = new Mock<UserManager<ApplicationUser>>(_store.Object, null, null, null, null, null, null, null, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+            _mockILogger = new Mock<ILogger<ChangePasswordService>>();
+            _mockIJwtService = new Mock<IJwtService>();
+
+            _changePasswordService = new(_mockUserManager.Object, _mockIJwtService.Object, _mockILogger.Object);
+        }
+
         [Fact]
         public async Task ChangePasswordService_Password_Success()
         {
-            // Mocking services
-            Mock<IUserStore<ApplicationUser>> store = new();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<ILogger<ChangePasswordService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            ChangePasswordService changePasswordService = new(mockUserManager.Object, mockIJwtService.Object, mockILogger.Object);
-
             ChangePasswordDto dto = new()
             {
                 Email = "user@example.com",
@@ -32,14 +41,14 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             };
 
             // Mocking functions
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
               .ReturnsAsync(new ApplicationUser() { Id = new Guid().ToString(), UserName = "user@example.com" });
 
-            mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
               .ReturnsAsync(true);
 
             // Getting result
-            ReturnDTO result = await changePasswordService.ChangePassword(dto);
+            ReturnDTO result = await _changePasswordService.ChangePassword(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -52,22 +61,13 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
 
-            mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
-            mockUserManager.Verify(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
         public async Task ChangePasswordService_Code_Success()
         {
-            // Mocking services
-            Mock<IUserStore<ApplicationUser>> store = new();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<ILogger<ChangePasswordService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            ChangePasswordService changePasswordService = new(mockUserManager.Object, mockIJwtService.Object, mockILogger.Object);
-
             ChangePasswordDto dto = new()
             {
                 Email = "user@example.com",
@@ -76,11 +76,11 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             };
 
             // Mocking functions
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
               .ReturnsAsync(new ApplicationUser() { Id = new Guid().ToString(), UserName = "user@example.com" });
 
             // Getting result
-            ReturnDTO result = await changePasswordService.ChangePassword(dto);
+            ReturnDTO result = await _changePasswordService.ChangePassword(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -93,22 +93,13 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
 
-            mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
         }
 
 
         [Fact]
         public async Task ChangePasswordService_Login_NotFound()
         {
-            // Mocking services
-            Mock<IUserStore<ApplicationUser>> store = new();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<ILogger<ChangePasswordService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            ChangePasswordService changePasswordService = new(mockUserManager.Object, mockIJwtService.Object, mockILogger.Object);
-
             ChangePasswordDto dto = new()
             {
                 Email = "user@example.com",
@@ -117,11 +108,11 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             };
 
             // Mocking functions
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
               .ReturnsAsync(null as ApplicationUser);
 
             // Getting result
-            ReturnDTO result = await changePasswordService.ChangePassword(dto);
+            ReturnDTO result = await _changePasswordService.ChangePassword(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -134,21 +125,12 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
 
-            mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
         public async Task ChangePasswordService_NoCodeWrongPassword_NotFound()
         {
-            // Mocking services
-            Mock<IUserStore<ApplicationUser>> store = new();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<ILogger<ChangePasswordService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            ChangePasswordService changePasswordService = new(mockUserManager.Object, mockIJwtService.Object, mockILogger.Object);
-
             ChangePasswordDto dto = new()
             {
                 Email = "user@example.com",
@@ -157,14 +139,14 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             };
 
             // Mocking functions
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
               .ReturnsAsync(new ApplicationUser() { Id = new Guid().ToString(), UserName = "user@example.com" });
 
-            mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
               .ReturnsAsync(false);
 
             // Getting result
-            ReturnDTO result = await changePasswordService.ChangePassword(dto);
+            ReturnDTO result = await _changePasswordService.ChangePassword(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -177,8 +159,8 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
 
-            mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
-            mockUserManager.Verify(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
         }
 
     }

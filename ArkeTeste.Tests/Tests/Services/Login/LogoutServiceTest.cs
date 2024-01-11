@@ -8,20 +8,28 @@ namespace ArkeTeste.Tests.Tests.Services.Login
 {
     public class LogoutServiceTest
     {
+        private readonly LogoutService _logoutService;
+        private readonly Mock<IJwtService> _mockIJwtService;
+        private readonly Mock<ILogger<LogoutService>> _mockILogger;
+
+
+        public LogoutServiceTest()
+        {
+            _mockILogger = new Mock<ILogger<LogoutService>>();
+            _mockIJwtService = new Mock<IJwtService>();
+
+            _logoutService = new(_mockIJwtService.Object, _mockILogger.Object);
+        }
+
         [Fact]
         public void LogoutService_Logout_Success()
         {
-            // Mocking service
-            Mock<ILogger<LogoutService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            LogoutService logoutService = new(mockIJwtService.Object, mockILogger.Object);
-
             // Mocking functions
 
-            mockIJwtService.Setup(s => s.RemoveTokens()).Verifiable();
+            _mockIJwtService.Setup(s => s.RemoveTokens()).Verifiable();
 
             // Getting result
-            ReturnDTO res = logoutService.Logout();
+            ReturnDTO res = _logoutService.Logout();
 
             ReturnDTO returnDTO = new()
             {

@@ -1,4 +1,5 @@
 ﻿using ArkeTest.Models;
+using ArkeTest.Services.Factory.IFactory;
 using ArkeTest.Services.Jwt.IJwt;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -15,18 +16,21 @@ namespace ArkeTest.Services.Jwt
         private readonly ILogger<JwtService> _logger;
         private readonly IConfiguration _configuration;
         private readonly ITokenValidationParametersFactory _factoryTokenValidationParametersFactory;
+        private readonly ITokenHandlerWrapper _tokenHandlerWrapper;
 
         public JwtService(UserManager<ApplicationUser> userManager,
                           IHttpContextAccessor httpContextAccessor,
                           ILogger<JwtService> logger,
                           IConfiguration configuration,
-                          ITokenValidationParametersFactory factoryTokenValidationParametersFactory)
+                          ITokenValidationParametersFactory factoryTokenValidationParametersFactory,
+                          ITokenHandlerWrapper tokenHandlerWrapper)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _configuration = configuration;
             _factoryTokenValidationParametersFactory = factoryTokenValidationParametersFactory;
+            _tokenHandlerWrapper = tokenHandlerWrapper;
         }
 
         public void GenerateJwtToken(ApplicationUser user)
@@ -167,9 +171,7 @@ namespace ArkeTest.Services.Jwt
 
                 TokenValidationParameters validationParameters = _factoryTokenValidationParametersFactory.Create(secret);
 
-                JwtSecurityTokenHandler tokenHandler = new();
-
-                ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+                ClaimsPrincipal principal = _tokenHandlerWrapper.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
                 IEnumerable<Claim> claims = principal.Claims;
 
@@ -186,7 +188,7 @@ namespace ArkeTest.Services.Jwt
             // If there is an error, throw an exception
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting refresh");
+                _logger.LogError(ex, "Error getting jwt");
                 throw;
             }
         }

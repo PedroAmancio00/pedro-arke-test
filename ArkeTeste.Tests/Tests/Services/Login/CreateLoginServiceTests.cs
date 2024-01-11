@@ -11,17 +11,25 @@ namespace ArkeTest.Tests.Services.Login
 {
     public class CreateLoginServiceTests
     {
+        private readonly CreateLoginService _createLoginService;
+        private readonly Mock<IUserStore<ApplicationUser>> _store;
+        private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
+        private readonly Mock<ILogger<CreateLoginService>> _mockILogger;
+
+        public CreateLoginServiceTests()
+        {
+            _store = new Mock<IUserStore<ApplicationUser>>();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            _mockUserManager = new Mock<UserManager<ApplicationUser>>(_store.Object, null, null, null, null, null, null, null, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+            _mockILogger = new Mock<ILogger<CreateLoginService>>();
+
+            _createLoginService = new(_mockUserManager.Object, _mockILogger.Object);
+        }
+
         [Fact]
         public async Task CreateLogin_Success()
         {
-            // Mocking services
-            Mock<IUserStore<ApplicationUser>> store = new();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<ILogger<CreateLoginService>> mockILogger = new();
-            CreateLoginService createLoginService = new(mockUserManager.Object, mockILogger.Object);
-
             CreateLoginDTO dto = new()
             {
                 Email = "user@example.com",
@@ -29,11 +37,11 @@ namespace ArkeTest.Tests.Services.Login
             };
 
             // Mocking functions
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                       .ReturnsAsync(IdentityResult.Success);
 
             // Getting result
-            ReturnDTO result = await createLoginService.CreateLogin(dto);
+            ReturnDTO result = await _createLoginService.CreateLogin(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -46,20 +54,12 @@ namespace ArkeTest.Tests.Services.Login
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
 
-            mockUserManager.Verify(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
         public async Task CreateLogin_Conflict()
         {
-            // Mocking services
-            Mock<IUserStore<ApplicationUser>> store = new();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<UserManager<ApplicationUser>> mockUserManager = new(store.Object, null, null, null, null, null, null, null, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            Mock<ILogger<CreateLoginService>> mockILogger = new();
-            CreateLoginService createLoginService = new(mockUserManager.Object, mockILogger.Object);
-
             CreateLoginDTO dto = new()
             {
                 Email = "user@example.com",
@@ -67,11 +67,11 @@ namespace ArkeTest.Tests.Services.Login
             };
 
             // Mocking functions to fail
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                        .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Error creating login" }));
 
             // Getting result
-            ReturnDTO result = await createLoginService.CreateLogin(dto);
+            ReturnDTO result = await _createLoginService.CreateLogin(dto);
 
             ReturnDTO returnDTO = new()
             {
@@ -84,7 +84,7 @@ namespace ArkeTest.Tests.Services.Login
             Assert.Equal(returnDTO.Message, result.Message);
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
 
-            mockUserManager.Verify(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
         }
     }
 }

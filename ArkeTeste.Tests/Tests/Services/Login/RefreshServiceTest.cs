@@ -3,7 +3,6 @@ using ArkeTest.DTO;
 using ArkeTest.Models;
 using ArkeTest.Services.Jwt.IJwt;
 using ArkeTest.Services.Login;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -12,36 +11,43 @@ namespace ArkeTeste.Tests.Tests.Services
 {
     public class RefreshServiceTest
     {
+        private readonly RefreshService _refreshService;
+        private readonly MyDbContext _mockMyDbContext;
+        private readonly Mock<IJwtService> _mockIJwtService;
+        private readonly Mock<ILogger<RefreshService>> _mockILogger;
+
+
+        public RefreshServiceTest()
+        {
+            DbContextOptions<MyDbContext> options = new DbContextOptionsBuilder<MyDbContext>()
+                   .UseInMemoryDatabase(databaseName: "RefreshService_Refresh")
+                   .Options;
+            _mockMyDbContext = new(options);
+            _mockILogger = new Mock<ILogger<RefreshService>>();
+            _mockIJwtService = new Mock<IJwtService>();
+
+            _refreshService = new(_mockMyDbContext, _mockIJwtService.Object, _mockILogger.Object);
+        }
+
         [Fact]
         public async Task RefreshService_Refresh_Success()
         {
-            // Declaring test database
-            DbContextOptions<MyDbContext> options = new DbContextOptionsBuilder<MyDbContext>()
-                .UseInMemoryDatabase(databaseName: "RefreshService_Refresh_Success") // Make sure to use a unique name for each test
-                .Options;
-            MyDbContext mockMyDbContext = new(options);
-
             // Adding data on database
             List<ApplicationUser> testData = new()
             {
                 new ApplicationUser { RefreshToken = "token", RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7) }
             };
 
-            mockMyDbContext.ApplicationUsers.AddRange(testData);
-            mockMyDbContext.SaveChanges();
-
-            // Mocking services
-            Mock<ILogger<RefreshService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            RefreshService refreshService = new(mockMyDbContext, mockIJwtService.Object, mockILogger.Object);
+            _mockMyDbContext.ApplicationUsers.AddRange(testData);
+            _mockMyDbContext.SaveChanges();
 
             // Mocking functions
-            mockIJwtService.Setup(s => s.GetRefreshToken()).Returns("token");
+            _mockIJwtService.Setup(s => s.GetRefreshToken()).Returns("token");
 
-            mockIJwtService.Setup(s => s.GenerateJwtToken(It.IsAny<ApplicationUser>())).Verifiable();
+            _mockIJwtService.Setup(s => s.GenerateJwtToken(It.IsAny<ApplicationUser>())).Verifiable();
 
             // Getting result
-            ReturnDTO res = await refreshService.Refresh();
+            ReturnDTO res = await _refreshService.Refresh();
 
             ReturnDTO returnDTO = new()
             {
@@ -58,27 +64,16 @@ namespace ArkeTeste.Tests.Tests.Services
         [Fact]
         public async Task RefreshService_Refresh_Token_NotFound()
         {
-            // Declaring test database
-            DbContextOptions<MyDbContext> options = new DbContextOptionsBuilder<MyDbContext>()
-                .UseInMemoryDatabase(databaseName: "RefreshService_Refresh_Token_NotFound") // Make sure to use a unique name for each test
-                .Options;
-
-            MyDbContext mockMyDbContext = new(options);
-
-            // Mocking services
-            Mock<ILogger<RefreshService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            Mock<IResponseCookies> mockCookieCollection = new();
-            RefreshService refreshService = new(mockMyDbContext, mockIJwtService.Object, mockILogger.Object);
+            _mockMyDbContext.Database.EnsureDeleted();
 
             // Nullifying token for failure
             string? token = null;
 
             // Mocking functions
-            mockIJwtService.Setup(s => s.GetRefreshToken()).Returns(token);
+            _mockIJwtService.Setup(s => s.GetRefreshToken()).Returns(token);
 
             // Getting result
-            ReturnDTO res = await refreshService.Refresh();
+            ReturnDTO res = await _refreshService.Refresh();
 
             ReturnDTO returnDTO = new()
             {
@@ -95,26 +90,15 @@ namespace ArkeTeste.Tests.Tests.Services
         [Fact]
         public async Task RefreshService_Refresh_Login_NotFound()
         {
-            // Declaring test database
-            DbContextOptions<MyDbContext> options = new DbContextOptionsBuilder<MyDbContext>()
-                .UseInMemoryDatabase(databaseName: "RefreshService_Refresh_Login_NotFound") // Make sure to use a unique name for each test
-                .Options;
-
-            MyDbContext mockMyDbContext = new(options);
-
-            // Mocking services
-            Mock<ILogger<RefreshService>> mockILogger = new();
-            Mock<IJwtService> mockIJwtService = new();
-            Mock<IResponseCookies> mockCookieCollection = new();
-            RefreshService refreshService = new(mockMyDbContext, mockIJwtService.Object, mockILogger.Object);
+            _mockMyDbContext.Database.EnsureDeleted();
 
             string? token = "token";
 
             // Mocking functions
-            mockIJwtService.Setup(s => s.GetRefreshToken()).Returns(token);
+            _mockIJwtService.Setup(s => s.GetRefreshToken()).Returns(token);
 
             // Getting result
-            ReturnDTO res = await refreshService.Refresh();
+            ReturnDTO res = await _refreshService.Refresh();
 
             ReturnDTO returnDTO = new()
             {

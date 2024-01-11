@@ -1,5 +1,4 @@
 ﻿using ArkeTest.Models;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ArkeTest.Services.Jwt.IJwt
 {

@@ -17,9 +17,10 @@ namespace ArkeTest.Controllers
         [Authorize]
         [HttpPost(Name = "CreateOrUpdateUser")]
         [SwaggerOperation(Summary = "Create or update user")]
-        [SwaggerResponse(200, "User not logged in")]
+        [SwaggerResponse(200, "User updated")]
         [SwaggerResponse(201, "User created")]
         [SwaggerResponse(400, "Erros that ocurred, probably email duplication")]
+        [SwaggerResponse(401, "User not logged in")]
         [SwaggerResponse(404, "Login not found")]
         [SwaggerResponse(500, "Internal Server error")]
         public async Task<IActionResult> CreateOrUpdateUser([FromBody] CreateUserDTO createUserDTO)

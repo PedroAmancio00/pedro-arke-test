@@ -1,4 +1,8 @@
-﻿using ArkeTest.Services;
+﻿using ArkeTest.Services.Factory;
+using ArkeTest.Services.Factory.IFactory;
+using ArkeTest.Services.FactoryWrapper;
+using ArkeTest.Services.Jwt;
+using ArkeTest.Services.Jwt.IJwt;
 using ArkeTest.Services.Login;
 using ArkeTest.Services.Login.ILogin;
 using ArkeTest.Services.User;
@@ -18,6 +22,8 @@ namespace ArkeTest
             services.AddScoped<ILogoutService, LogoutService>();
             services.AddScoped<IChangePasswordService, ChangePasswordService>();
             services.AddScoped<ICreateUser, CreateOrUpdateUserService>();
+            services.AddScoped<ITokenValidationParametersFactory, TokenValidationParametersFactory>();
+            services.AddScoped<ITokenHandlerWrapper, TokenHandlerWrapper>();
         }
     }
 }
