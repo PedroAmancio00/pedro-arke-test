@@ -1,8 +1,8 @@
 ﻿using ArkeTest.Data;
 using ArkeTest.DTO;
 using ArkeTest.Models;
+using ArkeTest.Services.Jwt.IJwt;
 using ArkeTest.Services.Login;
-using ArkeTest.Services.Login.ILogin;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

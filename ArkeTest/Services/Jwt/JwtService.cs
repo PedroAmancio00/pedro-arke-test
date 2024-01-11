@@ -1,12 +1,12 @@
 ﻿using ArkeTest.Models;
-using ArkeTest.Services.Login.ILogin;
+using ArkeTest.Services.Jwt.IJwt;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ArkeTest.Services
+namespace ArkeTest.Services.Jwt
 {
     public class JwtService : IJwtService
     {
@@ -14,16 +14,19 @@ namespace ArkeTest.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<JwtService> _logger;
         private readonly IConfiguration _configuration;
+        private readonly ITokenValidationParametersFactory _factoryTokenValidationParametersFactory;
 
         public JwtService(UserManager<ApplicationUser> userManager,
                           IHttpContextAccessor httpContextAccessor,
                           ILogger<JwtService> logger,
-                          IConfiguration configuration)
+                          IConfiguration configuration,
+                          ITokenValidationParametersFactory factoryTokenValidationParametersFactory)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _configuration = configuration;
+            _factoryTokenValidationParametersFactory = factoryTokenValidationParametersFactory;
         }
 
         public void GenerateJwtToken(ApplicationUser user)
@@ -162,27 +165,17 @@ namespace ArkeTest.Services
 
                 string secret = _configuration["jwtKey"]!;
 
-                var validationParameters = new TokenValidationParameters
+                TokenValidationParameters validationParameters = _factoryTokenValidationParametersFactory.Create(secret);
+
+                JwtSecurityTokenHandler tokenHandler = new();
+
+                ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+                IEnumerable<Claim> claims = principal.Claims;
+
+                foreach (Claim claim in claims)
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-
-                SecurityToken validatedToken;
-
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-                var claims = principal.Claims;
-
-                foreach (var claim in claims)
-                {
-                    if(claim.Type == "jti")
+                    if (claim.Type == "jti")
                     {
                         return claim.Value;
                     }

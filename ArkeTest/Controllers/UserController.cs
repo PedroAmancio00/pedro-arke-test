@@ -1,7 +1,5 @@
 ﻿using ArkeTest.DTO;
 using ArkeTest.DTO.User;
-using ArkeTest.Services.Login;
-using ArkeTest.Services.Login.ILogin;
 using ArkeTest.Services.User.IUser;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +13,14 @@ namespace ArkeTest.Controllers
 
     {
         private readonly ICreateUser _createUser = createUser;
-    
+
         [Authorize]
         [HttpPost(Name = "CreateOrUpdateUser")]
         [SwaggerOperation(Summary = "Create or update user")]
         [SwaggerResponse(200, "User not logged in")]
         [SwaggerResponse(201, "User created")]
         [SwaggerResponse(400, "Erros that ocurred, probably email duplication")]
-        [SwaggerResponse(404, "Login not found")]        
+        [SwaggerResponse(404, "Login not found")]
         [SwaggerResponse(500, "Internal Server error")]
         public async Task<IActionResult> CreateOrUpdateUser([FromBody] CreateUserDTO createUserDTO)
         {

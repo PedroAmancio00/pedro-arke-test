@@ -9,7 +9,7 @@ using System.Text;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-var configuration = builder.Configuration;
+ConfigurationManager configuration = builder.Configuration;
 
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -24,7 +24,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddServices();
 
-var key = configuration["jwtKey"]!;
+string key = configuration["jwtKey"]!;
 
 builder.Services.AddAuthentication(options =>
 {

@@ -1,6 +1,7 @@
 ﻿using ArkeTest.Models;
+using Microsoft.IdentityModel.Tokens;
 
-namespace ArkeTest.Services.Login.ILogin
+namespace ArkeTest.Services.Jwt.IJwt
 {
     public interface IJwtService
     {
@@ -10,4 +11,5 @@ namespace ArkeTest.Services.Login.ILogin
         string? GetRefreshToken();
         string? GetAndDecodeJwtToken();
     }
+
 }

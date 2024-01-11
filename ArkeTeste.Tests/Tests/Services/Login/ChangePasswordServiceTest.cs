@@ -1,17 +1,12 @@
 ﻿using ArkeTest.DTO;
+using ArkeTest.DTO.Login;
 using ArkeTest.Models;
-using ArkeTest.Services.Login.ILogin;
+using ArkeTest.Services.Jwt.IJwt;
 using ArkeTest.Services.Login;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using ArkeTest.DTO.Login;
 
 namespace ArkeTeste.Tests.Tests.Services.Login
 {
@@ -99,7 +94,7 @@ namespace ArkeTeste.Tests.Tests.Services.Login
             Assert.Equal(returnDTO.StatusCode, result.StatusCode);
 
             mockUserManager.Verify(x => x.FindByEmailAsync(It.IsAny<string>()), Times.Once);
-        }      
+        }
 
 
         [Fact]

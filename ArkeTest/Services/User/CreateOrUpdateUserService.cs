@@ -2,13 +2,10 @@
 using ArkeTest.DTO;
 using ArkeTest.DTO.User;
 using ArkeTest.Models;
-using ArkeTest.Services.Login;
-using ArkeTest.Services.Login.ILogin;
+using ArkeTest.Services.Jwt.IJwt;
 using ArkeTest.Services.User.IUser;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using System.Xml.Linq;
 
 namespace ArkeTest.Services.User
 {
@@ -27,7 +24,8 @@ namespace ArkeTest.Services.User
             _logger = logger;
         }
 
-        public async Task<ReturnDTO> CreateOrUpdateUser(CreateUserDTO dto){
+        public async Task<ReturnDTO> CreateOrUpdateUser(CreateUserDTO dto)
+        {
             string? id = _jwtService.GetAndDecodeJwtToken();
             if (id == null)
             {
@@ -39,9 +37,10 @@ namespace ArkeTest.Services.User
                 _logger.LogInformation("User not logged in");
 
                 return returnDTO;
-            } 
-            else{
-                var login = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
+            }
+            else
+            {
+                ApplicationUser? login = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
                 if (login == null)
                 {
                     ReturnDTO returnDTO = new()
@@ -55,8 +54,8 @@ namespace ArkeTest.Services.User
                 }
                 else
                 {
-                    var existingUser = await _db.UserInformations.FirstOrDefaultAsync(x => x.LoginId == login.Id);
-                    
+                    UserInformation? existingUser = await _db.UserInformations.FirstOrDefaultAsync(x => x.LoginId == login.Id);
+
                     if (existingUser != null)
                     {
                         existingUser.Name = dto.Name;

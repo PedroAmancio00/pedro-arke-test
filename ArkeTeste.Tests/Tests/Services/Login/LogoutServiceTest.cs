@@ -1,6 +1,6 @@
 ﻿using ArkeTest.DTO;
+using ArkeTest.Services.Jwt.IJwt;
 using ArkeTest.Services.Login;
-using ArkeTest.Services.Login.ILogin;
 using Microsoft.Extensions.Logging;
 using Moq;
 

@@ -1,5 +1,5 @@
-﻿using ArkeTest.DTO.User;
-using ArkeTest.DTO;
+﻿using ArkeTest.DTO;
+using ArkeTest.DTO.User;
 
 namespace ArkeTest.Services.User.IUser
 {

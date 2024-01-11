@@ -1,6 +1,7 @@
 ﻿using ArkeTest.DTO;
 using ArkeTest.DTO.Login;
 using ArkeTest.Models;
+using ArkeTest.Services.Jwt.IJwt;
 using ArkeTest.Services.Login.ILogin;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
