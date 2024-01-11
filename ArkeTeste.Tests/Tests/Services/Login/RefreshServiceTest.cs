@@ -37,7 +37,7 @@ namespace ArkeTeste.Tests.Tests.Services
             {
                 new ApplicationUser { RefreshToken = "token", RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7) }
             };
-
+            _mockMyDbContext.Database.EnsureDeleted();
             _mockMyDbContext.ApplicationUsers.AddRange(testData);
             _mockMyDbContext.SaveChanges();
 

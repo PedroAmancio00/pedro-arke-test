@@ -107,23 +107,19 @@ namespace ArkeTeste.Tests.Tests.Controllers
         }
 
         [Fact]
-        public async Task CreateOrUpdateUser_Unauthorized()
+        public async Task CreateOrUpdateUser_NotFound()
         {
-            //Mocking services
-            Mock<ICreateUser> mockCreateUser = new();
-            UserController userController = new(mockCreateUser.Object);
-
             ReturnDTO returnDTO = new()
             {
-                Message = "User not logged in",
-                StatusCode = HttpStatusCode.BadRequest
+                Message = "Login not found",
+                StatusCode = HttpStatusCode.NotFound
             };
 
             //Mocking functions
-            mockCreateUser.Setup(x => x.CreateOrUpdateUser(It.IsAny<CreateUserDTO>()))
-                .ReturnsAsync(new ReturnDTO() { Message = "User not logged in", StatusCode = HttpStatusCode.BadRequest });
+            _mockCreateUser.Setup(x => x.CreateOrUpdateUser(It.IsAny<CreateUserDTO>()))
+                .ReturnsAsync(new ReturnDTO() { Message = "Login not found", StatusCode = HttpStatusCode.NotFound });
 
-            IActionResult result = await userController.CreateOrUpdateUser(new CreateUserDTO());
+            IActionResult result = await _userController.CreateOrUpdateUser(new CreateUserDTO());
 
             //Asserting
             Assert.NotNull(result);

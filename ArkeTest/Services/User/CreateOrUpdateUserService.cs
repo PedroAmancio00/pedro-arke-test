@@ -26,27 +26,15 @@ namespace ArkeTest.Services.User
 
         public async Task<ReturnDTO> CreateOrUpdateUser(CreateUserDTO dto)
         {
-            string? id = _jwtService.GetAndDecodeJwtToken();
-            if (id == null)
+            try
             {
-                ReturnDTO returnDTO = new()
-                {
-                    Message = "User not logged in",
-                    StatusCode = HttpStatusCode.BadRequest
-                };
-                _logger.LogInformation("User not logged in");
-
-                return returnDTO;
-            }
-            else
-            {
-                ApplicationUser? login = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
-                if (login == null)
+                string? id = _jwtService.GetAndDecodeJwtToken();
+                if (id == null)
                 {
                     ReturnDTO returnDTO = new()
                     {
-                        Message = "Login not found",
-                        StatusCode = HttpStatusCode.NotFound
+                        Message = "User not logged in",
+                        StatusCode = HttpStatusCode.BadRequest
                     };
                     _logger.LogInformation("User not logged in");
 
@@ -54,104 +42,71 @@ namespace ArkeTest.Services.User
                 }
                 else
                 {
-                    UserInformation? existingUser = await _db.UserInformations.FirstOrDefaultAsync(x => x.LoginId == login.Id);
-
-                    if (existingUser != null)
+                    ApplicationUser? login = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
+                    if (login == null)
                     {
-                        existingUser.Name = dto.Name;
-                        existingUser.AddressLine1 = dto.AddressLine1 ?? null;
-                        existingUser.AddressLine2 = dto.AddressLine2 ?? null;
-                        existingUser.UpdateModifiedAt();
-                        await _db.SaveChangesAsync();
                         ReturnDTO returnDTO = new()
                         {
-                            Message = "User updated",
-                            StatusCode = HttpStatusCode.OK
+                            Message = "Login not found",
+                            StatusCode = HttpStatusCode.NotFound
                         };
-                        _logger.LogInformation("User updated");
+                        _logger.LogInformation("User not logged in");
 
                         return returnDTO;
                     }
                     else
                     {
-                        UserInformation newUser = new(dto.Name, id, dto.AddressLine1 ?? null, dto.AddressLine2 ?? null);
+                        UserInformation? existingUser = await _db.UserInformations.FirstOrDefaultAsync(x => x.LoginId == login.Id);
 
-                        await _db.UserInformations.AddAsync(newUser);
-
-                        await _db.SaveChangesAsync();
-
-                        ReturnDTO returnDTO = new()
+                        if (existingUser != null)
                         {
-                            Message = "User created",
-                            StatusCode = HttpStatusCode.Created
-                        };
-                        _logger.LogInformation("User created");
+                            existingUser.Name = dto.Name;
+                            existingUser.AddressLine1 = dto.AddressLine1 ?? null;
+                            existingUser.AddressLine2 = dto.AddressLine2 ?? null;
+                            existingUser.UpdateModifiedAt();
+                            await _db.SaveChangesAsync();
+                            ReturnDTO returnDTO = new()
+                            {
+                                Message = "User updated",
+                                StatusCode = HttpStatusCode.OK
+                            };
+                            _logger.LogInformation("User updated");
 
-                        return returnDTO;
+                            return returnDTO;
+                        }
+                        else
+                        {
+                            UserInformation newUser = new(dto.Name, id, dto.AddressLine1 ?? null, dto.AddressLine2 ?? null);
+
+                            await _db.UserInformations.AddAsync(newUser);
+
+                            await _db.SaveChangesAsync();
+
+                            ReturnDTO returnDTO = new()
+                            {
+                                Message = "User created",
+                                StatusCode = HttpStatusCode.Created
+                            };
+                            _logger.LogInformation("User created");
+
+                            return returnDTO;
+                        }
                     }
                 }
             }
-        }
-
-
-        /*
-        public async Task<ReturnDTO> CreateUser(CreateUserDTO dto)
-        {
-            try
-            {
-                // Check if the user already exists
-                ApplicationUser? user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Email == dto.Email);
-
-                // If the user already exists, return a 400
-                if (user != null)
-                {
-                    ReturnDTO returnDTO = new()
-                    {
-                        Message = "User already exists",
-                        StatusCode = HttpStatusCode.BadRequest
-                    };
-                    _logger.LogInformation("User already exists");
-
-                    return returnDTO;
-                }
-
-                // Create a new user
-                ApplicationUser newUser = new()
-                {
-                    Email = dto.Email,
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Password = dto.Password,
-                    UserName = dto.Email
-                };
-
-                // Add the user to the database
-                await _db.ApplicationUsers.AddAsync(newUser);
-                await _db.SaveChangesAsync();
-
-                ReturnDTO returnDTO = new()
-                {
-                    Message = "User created successfully",
-                    StatusCode = HttpStatusCode.OK
-                };
-                _logger.LogInformation("User created successfully");
-
-                return returnDTO;
-            }
-            // If an error occurs, return a 500
+            // If there is an exception, return a 500
             catch (Exception ex)
             {
-                _logger.LogError(ex, "User creation failed");
+                _logger.LogError(ex, "Internal error creating or updating user");
+
                 ReturnDTO returnDTO = new()
                 {
-                    Message = "Error creating user",
+                    Message = "Internal error creating or updating user",
                     StatusCode = HttpStatusCode.InternalServerError
                 };
 
                 return returnDTO;
             }
-        }   
-        */
-
+        }
     }
 }
