@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -189,8 +190,7 @@ namespace ArkeTest.Migrations
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     Price = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserInformationId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -198,8 +198,8 @@ namespace ArkeTest.Migrations
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_UserInformations_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Products_UserInformations_UserInformationId",
+                        column: x => x.UserInformationId,
                         principalTable: "UserInformations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -258,9 +258,9 @@ namespace ArkeTest.Migrations
                 column: "Name");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_UserId",
+                name: "IX_Products_UserInformationId",
                 table: "Products",
-                column: "UserId");
+                column: "UserInformationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserInformations_LoginId",
