@@ -85,9 +85,9 @@ namespace ArkeTeste.Tests.Tests.Services.User
 
             Guid guidUser = Guid.NewGuid();
 
-            UserInformation user = new("Example User", guid, null, null);
+            Users user = new("Example User", guid, null, null);
 
-            List<UserInformation> testDataUser = new()
+            List<Users> testDataUser = new()
             {
                 user
             };

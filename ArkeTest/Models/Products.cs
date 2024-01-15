@@ -6,7 +6,7 @@ namespace ArkeTest.Models
 {
     [Index(nameof(Name))]
     [Index(nameof(Description))]
-    public class Product : BaseEntity
+    public class Products : BaseEntity
     {
         [Required]
         [MaxLength(100)]
@@ -24,18 +24,22 @@ namespace ArkeTest.Models
         public int Quantity { get; set; }
 
         [Required]
+        public bool IsActive { get; set; }
+
+        [Required]
         public Guid UserInformationId { get; set; }
 
         [ForeignKey("UserInformationId")]
-        public virtual UserInformation? UserInformation { get; set; }
+        public virtual Users? UserInformation { get; set; }
 
-        public Product(string name, string description, decimal price, int quantity, Guid userInformationId ) : base()
+        public Products(string name, string description, decimal price, int quantity, Guid userInformationId ) : base()
         {
             Name = name;
             Description = description;
             Price = price;
             Quantity = quantity;
             UserInformationId = userInformationId;
+            IsActive = true;
         }
         
     }

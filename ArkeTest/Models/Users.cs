@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ArkeTest.Models
 {
-    public class UserInformation : BaseEntity
+    public class Users : BaseEntity
     {
         [MaxLength(100)]
         [Required]
@@ -20,7 +20,7 @@ namespace ArkeTest.Models
         [ForeignKey("LoginId")]
         public virtual ApplicationUser? Login { get; set; }
 
-        public UserInformation(string name, string loginId, string? addressLine1, string? addressLine2) : base()
+        public Users(string name, string loginId, string? addressLine1, string? addressLine2) : base()
         {
             Name = name;
             LoginId = loginId;

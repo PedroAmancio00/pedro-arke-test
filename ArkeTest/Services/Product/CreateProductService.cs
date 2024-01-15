@@ -1,31 +1,31 @@
 ﻿using ArkeTest.Data;
 using ArkeTest.DTO;
-using ArkeTest.DTO.User;
+using ArkeTest.DTO.Product;
 using ArkeTest.Models;
 using ArkeTest.Services.Jwt.IJwt;
-using ArkeTest.Services.User.IUser;
+using ArkeTest.Services.Product.IProduct;
+using ArkeTest.Services.User;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
-namespace ArkeTest.Services.User
+namespace ArkeTest.Services.Product
 {
-    public class CreateOrUpdateUserService : ICreateUser
+    public class CreateProductService : ICreateProductService
     {
         private readonly MyDbContext _db;
         private readonly IJwtService _jwtService;
-        private readonly ILogger<CreateOrUpdateUserService> _logger;
+        private readonly ILogger<CreateProductService> _logger;
 
-        public CreateOrUpdateUserService(MyDbContext db,
+        public CreateProductService(MyDbContext db,
                                  IJwtService jwtService,
-                                 ILogger<CreateOrUpdateUserService> logger)
+                                 ILogger<CreateProductService> logger)
         {
             _db = db;
             _jwtService = jwtService;
             _logger = logger;
         }
 
-        public async Task<ReturnDTO> CreateOrUpdateUser(CreateUserDTO dto)
-        {
+        public async Task<ReturnDTO> CreateProduct(CreateProductDTO dto){
             try
             {
                 string? id = _jwtService.GetAndDecodeJwtToken();
@@ -57,39 +57,44 @@ namespace ArkeTest.Services.User
                     else
                     {
                         Users? existingUser = await _db.UserInformations.FirstOrDefaultAsync(x => x.LoginId == login.Id);
-
-                        if (existingUser != null)
+                        if (existingUser == null)
                         {
-                            existingUser.Name = dto.Name;
-                            existingUser.AddressLine1 = dto.AddressLine1 ?? null;
-                            existingUser.AddressLine2 = dto.AddressLine2 ?? null;
-                            existingUser.UpdateModifiedAt();
-                            await _db.SaveChangesAsync();
                             ReturnDTO returnDTO = new()
                             {
-                                Message = "User updated",
-                                StatusCode = HttpStatusCode.OK
+                                Message = "User not found",
+                                StatusCode = HttpStatusCode.NotFound
                             };
-                            _logger.LogInformation("User updated");
+                            _logger.LogInformation("User not found");
 
                             return returnDTO;
                         }
                         else
                         {
-                            Users newUser = new(dto.Name, id, dto.AddressLine1 ?? null, dto.AddressLine2 ?? null);
+                            Products? existingProduct = await _db.Products.FirstOrDefaultAsync(x => x.Name == dto.Name && x.Description == x.Description && x.IsActive == true);
+                            if(existingProduct != null){
+                                ReturnDTO returnDTO = new()
+                                {
+                                    Message = "Product already exists",
+                                    StatusCode = HttpStatusCode.Conflict
+                                };
+                                _logger.LogInformation("Product already exists");
 
-                            await _db.UserInformations.AddAsync(newUser);
+                                return returnDTO;
+                            }
+                            else{
+                                Products product = new(dto.Name, dto.Description, dto.Price, dto.Quantity, existingUser.Id);
+                                await _db.Products.AddAsync(product);
+                                await _db.SaveChangesAsync();
 
-                            await _db.SaveChangesAsync();
+                                ReturnDTO returnDTO = new()
+                                {
+                                    Message = "Product created",
+                                    StatusCode = HttpStatusCode.Created
+                                };
+                                _logger.LogInformation("Product created");
 
-                            ReturnDTO returnDTO = new()
-                            {
-                                Message = "User created",
-                                StatusCode = HttpStatusCode.Created
-                            };
-                            _logger.LogInformation("User created");
-
-                            return returnDTO;
+                                return returnDTO;
+                            }
                         }
                     }
                 }
